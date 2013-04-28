@@ -28,7 +28,7 @@ Please ask questions to the technical support forum.
 
 Bug Reports:
 
-   Hibernate JIRA (preferred)
+   Hibernate JIRA (preferred) (https://hibernate.atlassian.net)
    hibernate-devel@lists.sourceforge.net
 
 Free Technical Support:
@@ -43,3 +43,4 @@ If you want to contribute, go to http://www.hibernate.org/
 
 This software and its documentation are distributed under the terms of the
 FSF Lesser Gnu Public License (see lgpl.txt).
+
