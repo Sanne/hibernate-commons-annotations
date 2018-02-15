@@ -1,11 +1,15 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
     }
     dependencies {
         classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
         classpath 'org.hibernate.build.gradle:version-injection-plugin:1.0.0'
         classpath 'org.hibernate.build.gradle:gradle-animalSniffer-plugin:1.0.1.Final'
+        classpath 'gradle.plugin.org.inferred:gradle-processors:1.2.15'
     }
 }
 
@@ -20,6 +24,7 @@ apply plugin: 'version-injection'
 
 apply plugin: 'maven-publish'
 apply plugin: 'maven-publish-auth'
+apply plugin: 'org.inferred.processors'
 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
@@ -33,45 +38,15 @@ ext.javaLanguageLevel = "1.8"
 targetCompatibility = project.javaLanguageLevel
 sourceCompatibility = project.javaLanguageLevel
 
-configurations {
-    jbossLoggingTool {
-        description = 'Configuration for defining dependencies needed to run the JBoss Logging AnnotationProcessor tool'
-    }
-}
-
 dependencies {
     compile 'org.jboss.logging:jboss-logging:3.3.1.Final'
 
-    jbossLoggingTool 'org.jboss.logging:jboss-logging-annotations:2.1.0.Final'
-    jbossLoggingTool 'org.jboss.logging:jboss-logging-processor:2.1.0.Final'
+    processor 'org.jboss.logging:jboss-logging-annotations:2.1.0.Final'
+    processor 'org.jboss.logging:jboss-logging-processor:2.1.0.Final'
+    processor 'org.jboss.logging:jboss-logging:3.3.1.Final'
 
     testCompile( 'junit:junit:3.8.1' )
 }
-
-// create a special 'compile' task that performs all the tasks normally associated with compiling a project
-// via task dependencies
-task compile
-compile.dependsOn compileJava, processResources, compileTestJava, processTestResources
-
-
-project.getConvention().findPlugin( JavaPluginConvention.class ).sourceSets.each { sourceSet ->
-    JavaCompile javaCompileTask = project.tasks.findByName( sourceSet.compileJavaTaskName ) as JavaCompile
-
-    File aptDir = project.file( "${project.buildDir}/generated-src/apt/${sourceSet.name}" )
-    sourceSet.allJava.srcDir( aptDir )
-    sourceSet.compileClasspath += configurations.jbossLoggingTool
-
-    javaCompileTask.options.compilerArgs += [
-            "-nowarn",
-            "-encoding", "UTF-8",
-            "-s", "${aptDir.absolutePath}"
-    ]
-
-    javaCompileTask.doFirst {
-        aptDir.mkdirs()
-    }
-}
-
 
 // Project version injection ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 versionInjection {
